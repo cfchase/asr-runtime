@@ -11,6 +11,7 @@ WORKDIR /projects
 COPY . .
 
 # Install any dependencies
+RUN yum install -y ffmpeg
 RUN \
   if [ -f requirements.txt ]; \
     then pip install -r requirements.txt; \
