@@ -1,6 +1,7 @@
 .ignore/
 .odo/env
 .odo/odo-file-index.json
+scripts
 
 ### Python template
 # Byte-compiled / optimized / DLL files

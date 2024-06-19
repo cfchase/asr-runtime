@@ -2,6 +2,7 @@ import os
 import io
 import base64
 import argparse
+import json
 
 from typing import Dict, Union
 import torch
@@ -20,8 +21,7 @@ from kserve.errors import InvalidInput
 class AsrModel(Model):
     def __init__(self, name: str):
         super().__init__(name)
-        # self.model_id = os.environ.get("MODEL_ID", default="/mnt/models")
-        self.model_id = os.environ.get("MODEL_ID", default="openai/whisper-small")
+        self.model_id = os.environ.get("MODEL_ID", default="/mnt/models")
         self.device = (
             "cuda" if torch.cuda.is_available()
             else "mps" if torch.backends.mps.is_available()
@@ -38,10 +38,14 @@ class AsrModel(Model):
         self.ready = True
 
     def preprocess(
-            self, payload: Union[Dict, InferRequest], headers: Dict[str, str] = None
-    ) -> Dict:
+            self,
+            payload: Union[Dict, InferRequest],
+            headers: Dict[str, str] = None
+    ) -> Union[Dict, InferRequest]:
         if isinstance(payload, Dict) and "instances" in payload:
             headers["request-type"] = "v1"
+        elif isinstance(payload, bytes):
+            raise InvalidInput("form data not implemented")
         elif isinstance(payload, InferRequest):
             raise InvalidInput("v2 protocol not implemented")
         else:
@@ -50,9 +54,12 @@ class AsrModel(Model):
         return payload["instances"][0]
 
     def predict(
-            self, payload: Union[Dict, InferRequest], headers: Dict[str, str] = None
+            self,
+            payload: Union[Dict, InferRequest],
+            headers: Dict[str, str] = None
     ) -> Union[Dict, InferResponse]:
-        transcription = self.pipeline(".ignore/hello-world.mp3")
+        bytes_data = base64.b64decode(payload["audio"]["b64"])
+        transcription = self.pipeline(bytes_data)
 
         return {
             "predictions": [
