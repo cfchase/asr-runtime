@@ -32,7 +32,8 @@ class AsrModel(Model):
         self.load()
 
     def load(self):
-        self.pipeline = pipeline("automatic-speech-recognition", model="openai/whisper-small", device=self.device)
+        print(f"Loading model {self.model_id} on device {self.device}")
+        self.pipeline = pipeline("automatic-speech-recognition", model=self.model_id, device=self.device)
         # The ready flag is used by model ready endpoint for readiness probes,
         # set to True when model is loaded successfully without exceptions.
         self.ready = True
