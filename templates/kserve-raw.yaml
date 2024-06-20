@@ -1,7 +1,9 @@
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
-  name: asr
+  annotations:
+    serving.kserve.io/deploymentMode: RawDeployment
+  name: whisper-small-kserve-raw
 spec:
   predictor:
     containers:

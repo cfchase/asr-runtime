@@ -1,0 +1,39 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/accelerator-name: ""
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    opendatahub.io/template-display-name: ASR Runtime
+    opendatahub.io/template-name: asr-runtime
+    openshift.io/display-name: ASR Runtime
+  name: asr-runtime
+  labels:
+    opendatahub.io/dashboard: "true"
+spec:
+  annotations:
+    prometheus.kserve.io/path: /metrics
+    prometheus.kserve.io/port: "8888"
+  containers:
+    - name: kserve-container
+      image: quay.io/cfchase/asr-runtime:latest
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: shm
+  multiModel: false
+  protocolVersions:
+    - v1
+  supportedModelFormats:
+    - autoSelect: true
+      name: pytorch
+      version: "1"
+  volumes:
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi
+      name: shm
