@@ -1,4 +1,8 @@
 .ignore/
+output
+
+
+
 .odo/env
 .odo/odo-file-index.json
 
